@@ -1,0 +1,82 @@
+<?php
+error_reporting(0);
+define ("DB_HOST", "localhost");
+define ("DB_USER", "root");
+define ("DB_PASS","");
+define ("DB_NAME","nme");
+ 
+$link = mysqli_connect(DB_HOST, DB_USER, DB_PASS) or die("Couldn't make connection.");
+$db = mysqli_select_db(DB_NAME, $link) or die("Couldn't select database");
+
+
+$setCounter = 0;
+ 
+$setExcelName = "nmelist";
+ 
+$setSql = "select * from nme_choosing_list";
+ 
+$setRec = mysqli_query($setSql);
+ 
+$setCounter = mysqli_num_fields($setRec);
+
+echo"<table border='2'>";
+ 
+for ($i = 0; $i < $setCounter; $i++) {
+
+echo"<tr>";
+echo"<td>";
+echo $setRec['Roll_No'];
+echo"</td>";
+echo"<td>";
+echo $setRec['Name'];
+echo"</td>";
+echo"<td>";
+echo $setRec['Major'];
+echo"</td>";
+echo"<td>";
+echo $setRec['Nme_Dept'];
+echo"</td>";
+echo"<td>";
+echo $setRec['Subject_Name'];
+echo"</td>";
+echo"<td>";
+echo $setRec['Sub_Code'];
+echo"</td>";
+
+}
+ 
+while($rec = mysqli_fetch_row($setRec))  {
+  $rowLine = '';
+  foreach($rec as $value)       {
+    if(!isset($value) || $value == "")  {
+      $value = "n";
+    }   else  {
+//It escape all the special charactor, quotes from the data.
+      $value = strip_tags(str_replace('"', '""', $value));
+      $value = '"' . $value . '"'."\t";
+    }
+    $rowLine .= $value;
+  }
+  $setData .= trim($rowLine)."\n";
+}
+  
+ 
+if ($setData == "") {
+  $setData = "no matching records found";
+}
+ 
+$setCounter = mysqli_num_fields($setRec);
+ 
+ 
+ 
+//This Header is used to make data download instead of display the data
+ header("Content-type: application/octet-stream");
+ 
+header("Content-Disposition: attachment; filename=".$setExcelName."_Reoprt.xls");
+ 
+header("Pragma: no-cache");
+header("Expires: 0");
+ 
+//It will print all the Table row as Excel file row with selected column name as header.
+echo ucwords($setMainHeader)."\n".$setData."\n";
+?>
